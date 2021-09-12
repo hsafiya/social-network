@@ -1,4 +1,4 @@
-const { User, Thought } = require("../models");
+const { User, Thought } = require("../Models");
 
 const thoughtController = {
   // /api/thought route
@@ -92,3 +92,42 @@ const thoughtController = {
         res.status(400).json(err);
       });
   },
+   // add new thought reaction
+   addReaction({ params, body }, res) {
+    Thought.findOneAndUpdate(
+      { _id: params.thoughtid },
+      { $push: { reactions: body } },
+      { new: true }
+    )
+      .then((dbThoughData) => {
+        if (!dbThoughData) {
+          res.status(400).json({ message: "Thought ID does not exist" });
+          return;
+        }
+        res.json(dbThoughData);
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  },
+  //delete reactions reaction id value
+  deleteReaction({ params, body }, res) {
+    Thought.findOneAndUpdate(
+      { _id: params.thoughtId },
+      { $pull: { reactions: { reactionId: body.reactionId } } },
+      { new: true, runValidators: true }
+    )
+      .then((dbThoughData) => {
+        if (!dbThoughData) {
+          res.status(400).json({ message: "Thought ID does not exist" });
+          return;
+        }
+        res.json(dbThoughData);
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  },
+};
+
+module.exports = thoughtController;
